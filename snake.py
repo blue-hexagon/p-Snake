@@ -2,6 +2,8 @@ import curses
 from curses import textpad
 import random
 
+import scores
+
 GAMESPEED = 150
 
 
@@ -89,6 +91,7 @@ def main(screen):
                                                                                     game_canvas[1][1]] or snake[0] in [
             snake]:
             msg = 'GAME OVER'
+            scores.update_score(score)
             screen.addstr(h // 2, w // 2 - len(msg) // 2, msg)
             screen.nodelay(0)
             screen.timeout(-1)

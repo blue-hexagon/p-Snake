@@ -1,11 +1,11 @@
 import curses
 import os
 import sys
+from curses import textpad
+
+from scores import scores
 
 menu = ['Play', 'Scoreboard', 'Exit']
-scores = [['Computer', '1000'], ['Computer', '900'], ['Computer', '800'], ['Computer', '700'], ['Computer', '700'],
-          ['Computer', '600'], ['Computer', '500'], ['Computer', '400'], ['Computer', '300'], ['Computer', '200'],
-          ['Computer', '100'], ]
 
 
 def print_menu(stdscr, selected_row_idx):
@@ -27,17 +27,27 @@ def print_menu(stdscr, selected_row_idx):
 def print_scoreboard(stdscr):
     stdscr.clear()
     h, w = stdscr.getmaxyx()
-
-    score_entry_max_length = 0
-    for col1, col2 in enumerate(scores):
-        if len(str(col1)) + len(str(col2)) > score_entry_max_length:
-            score_entry_max_length = len(str(col1)) + len(str(col2))
+    player_name_max_length = 0
+    score_column_max_length = 0
+    for idx, fields in enumerate(scores):
+        if len(str(fields[0])) > player_name_max_length:
+            player_name_max_length = len(str(fields[0]))
+        if len(str(fields[1])) > score_column_max_length:
+            score_column_max_length = len(str(fields[1]))
     for idx, row in enumerate(scores):
-        x = w // 2 - score_entry_max_length // 2
+        x = w // 2 - player_name_max_length // 2 - score_column_max_length // 2
         y = h // 2 - len(scores) // 2 + idx
-        stdscr.addstr(y, x, row[0] + " - " + row[1])
-    stdscr.addstr(h // 2 - len(scores) // 2 - 2, w // 2 - len("Scoreboard") // 2-3, "Scoreboard")
+        stdscr.addstr(y, x, row[0].ljust(player_name_max_length) + " - " + str(row[1]))
+    stdscr.addstr(h // 2 - len(scores) // 2 - 2, w // 2 - len("Scoreboard") // 2, "Scoreboard")
     stdscr.refresh()
+
+
+if __name__ == '__main__':
+    player_name_max_length = 0
+    score_entry_max_length = 0
+    for idx, fields in enumerate(scores):
+        if len(str(fields[0])) > player_name_max_length:
+            player_name_max_length = len(str(fields[0]))
 
 
 def print_center(stdscr, text):
