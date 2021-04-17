@@ -87,9 +87,9 @@ def main(screen):
         else:
             screen.addstr(snake[-1][0], snake[-1][1], ' ')
             snake.pop()
-        if snake[0][0] in [game_canvas[0][0], game_canvas[1][0]] or snake[0][1] in [game_canvas[0][1],
-                                                                                    game_canvas[1][1]] or snake[0] in [
-            snake]:
+        if snake[0][0] in [game_canvas[0][0], game_canvas[1][0]] or \
+                snake[0][1] in [game_canvas[0][1], game_canvas[1][1]] or \
+                snake[0] in snake[1:]:
             msg = 'GAME OVER'
             scores.update_score(score)
             screen.addstr(h // 2, w // 2 - len(msg) // 2, msg)
@@ -118,7 +118,7 @@ def print_score(screen, w, score):
 
 
 def init_snake(screen, h, w):
-    snake = [[h // 2, w // 2 + 2],[h // 2, w // 2 + 1], [h // 2, w // 2], [h // 2, w // 2 - 1],[h // 2, w // 2 - 2]]
+    snake = [[h // 2, w // 2 + 2], [h // 2, w // 2 + 1], [h // 2, w // 2], [h // 2, w // 2 - 1], [h // 2, w // 2 - 2]]
     for y, x in snake:
         screen.addstr(y, x, '─')
     direction = curses.KEY_RIGHT
