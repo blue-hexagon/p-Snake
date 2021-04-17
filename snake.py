@@ -19,7 +19,7 @@ def main(screen):
         iter_counter += 1
         screen.addstr(0, 0, f"Pos(x,y):{str(snake[0]).replace(']', ' ').replace('[', ' ')}")
         screen.addstr(screen.getmaxyx()[0] - 1, 0, f"Steps: {iter_counter}")
-        screen.addstr(0, screen.getmaxyx()[1] - 10, f"")
+        screen.addstr(0, screen.getmaxyx()[1] - 20, f"Press ESC to pause")
         head = snake[0]
         key = screen.getch()
         if key in [curses.KEY_RIGHT, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_UP]:
@@ -27,7 +27,7 @@ def main(screen):
             current_direction = key
         elif key in [27]:
             msg = 'Game Paused'
-            screen.addstr(h // 2, w // 2 - len(msg) // 2, msg)
+            screen.addstr(h // 2, w // 2 - len(msg) // 2, msg, curses.A_BLINK)
             screen.nodelay(0)
             screen.timeout(-1)
             screen.getch()
@@ -39,61 +39,38 @@ def main(screen):
             new_head = [head[0], head[1] + 1]
             if prev_direction == curses.KEY_UP:
                 snake_symbol_neck = '╭'
-                prev_direction = current_direction
             elif prev_direction == curses.KEY_DOWN:
                 snake_symbol_neck = '╰'
-                prev_direction = current_direction
-            elif prev_direction == curses.KEY_LEFT:
+            elif prev_direction == curses.KEY_LEFT or prev_direction == curses.KEY_RIGHT:
                 snake_symbol_neck = '─'
-                prev_direction = current_direction
-            elif prev_direction == curses.KEY_RIGHT:
-                snake_symbol_neck = '─'
-                prev_direction = current_direction
         elif current_direction == curses.KEY_LEFT:
             snake_symbol_head = '─'
             new_head = [head[0], head[1] - 1]
             if prev_direction == curses.KEY_UP:
                 snake_symbol_neck = '╮'
-                prev_direction = current_direction
             elif prev_direction == curses.KEY_DOWN:
                 snake_symbol_neck = '╯'
-                prev_direction = current_direction
-            elif prev_direction == curses.KEY_LEFT:
+            elif prev_direction == curses.KEY_LEFT or prev_direction == curses.KEY_RIGHT:
                 snake_symbol_neck = '─'
-                prev_direction = current_direction
-            elif prev_direction == curses.KEY_RIGHT:
-                snake_symbol_neck = '─'
-                prev_direction = current_direction
         elif current_direction == curses.KEY_UP:
             snake_symbol_head = '│'
             new_head = [head[0] - 1, head[1]]
-            if prev_direction == curses.KEY_UP:
+            if prev_direction == curses.KEY_UP or prev_direction == curses.KEY_DOWN:
                 snake_symbol_neck = '│'
-                prev_direction = current_direction
-            elif prev_direction == curses.KEY_DOWN:
-                snake_symbol_neck = '│'
-                prev_direction = current_direction
             elif prev_direction == curses.KEY_LEFT:
                 snake_symbol_neck = '╰'
-                prev_direction = current_direction
             elif prev_direction == curses.KEY_RIGHT:
                 snake_symbol_neck = '╯'
-                prev_direction = current_direction
         elif current_direction == curses.KEY_DOWN:
             snake_symbol_head = '│'
             new_head = [head[0] + 1, head[1]]
-            if prev_direction == curses.KEY_UP:
+            if prev_direction == curses.KEY_UP or prev_direction == curses.KEY_DOWN:
                 snake_symbol_neck = '│'
-                prev_direction = current_direction
-            elif prev_direction == curses.KEY_DOWN:
-                snake_symbol_neck = '│'
-                prev_direction = current_direction
             elif prev_direction == curses.KEY_LEFT:
                 snake_symbol_neck = '╭'
-                prev_direction = current_direction
             elif prev_direction == curses.KEY_RIGHT:
                 snake_symbol_neck = '╮'
-                prev_direction = current_direction
+        prev_direction = current_direction
         snake.insert(0, new_head)
         screen.addstr(new_head[0], new_head[1], snake_symbol_head)
         screen.addstr(snake[1][0], snake[1][1], snake_symbol_neck)
@@ -108,10 +85,9 @@ def main(screen):
         else:
             screen.addstr(snake[-1][0], snake[-1][1], ' ')
             snake.pop()
-
         if snake[0][0] in [game_canvas[0][0], game_canvas[1][0]] or snake[0][1] in [game_canvas[0][1],
                                                                                     game_canvas[1][1]] or snake[0] in [
-            snake[1]]:
+            snake]:
             msg = 'GAME OVER'
             screen.addstr(h // 2, w // 2 - len(msg) // 2, msg)
             screen.nodelay(0)
@@ -139,7 +115,7 @@ def print_score(screen, w, score):
 
 
 def init_snake(screen, h, w):
-    snake = [[h // 2, w // 2 + 1], [h // 2, w // 2], [h // 2, w // 2 - 1]]
+    snake = [[h // 2, w // 2 + 2],[h // 2, w // 2 + 1], [h // 2, w // 2], [h // 2, w // 2 - 1],[h // 2, w // 2 - 2]]
     for y, x in snake:
         screen.addstr(y, x, '─')
     direction = curses.KEY_RIGHT
