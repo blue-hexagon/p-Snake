@@ -1,5 +1,6 @@
 import curses
 
+import colors
 import menu
 import scores
 import snake
