@@ -7,11 +7,11 @@ The game has the following features.
 <ul>
 <li>A start menu</li>
 <li>A scoreboard with persistent storage</li>
-<li>Can set playername and have it saved persistently</li>
-<li>A gamescore that rewards speed. Higher score the faster apples are gathered</li>
-<li>Obstacles that ends the game on collision</li>
+<li>Can set playername and have it saved in persistent storage</li>
+<li>Gamescore that rewards speed. Score accumulation increases the faster apples are gathered</li>
+<li>Tree obstacles that ends the game when colliding</li>
 <li>Apples that makes the snake grow and increments the score</li>
-<li>A pause mode when pressing ESC</li>
+<li>A pause screen</li>
 </ul>
 
 ![](./misc/Capture1.PNG)
