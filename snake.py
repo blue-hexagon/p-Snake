@@ -4,7 +4,7 @@ import random
 
 import scores
 
-GAMESPEED = 150
+GAMESPEED: int = 150
 
 
 def main(screen):

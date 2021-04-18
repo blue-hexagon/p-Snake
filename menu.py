@@ -1,7 +1,5 @@
 import curses
-import os
 import sys
-from curses import textpad
 
 from scores import scores
 
@@ -29,25 +27,19 @@ def print_scoreboard(stdscr):
     h, w = stdscr.getmaxyx()
     player_name_max_length = 0
     score_column_max_length = 0
+    scoreboard_fs = "  -  "
     for idx, fields in enumerate(scores):
         if len(str(fields[0])) > player_name_max_length:
             player_name_max_length = len(str(fields[0]))
         if len(str(fields[1])) > score_column_max_length:
             score_column_max_length = len(str(fields[1]))
     for idx, row in enumerate(scores):
-        x = w // 2 - player_name_max_length // 2 - score_column_max_length // 2
+        x = w // 2 - player_name_max_length // 2 - score_column_max_length // 2 - len(scoreboard_fs) // 2
         y = h // 2 - len(scores) // 2 + idx
-        stdscr.addstr(y, x, row[0].ljust(player_name_max_length) + " - " + str(row[1]))
+        stdscr.addstr(y, x,
+                      row[0].ljust(player_name_max_length) + scoreboard_fs + str(row[1]).rjust(score_column_max_length))
     stdscr.addstr(h // 2 - len(scores) // 2 - 2, w // 2 - len("Scoreboard") // 2, "Scoreboard")
     stdscr.refresh()
-
-
-if __name__ == '__main__':
-    player_name_max_length = 0
-    score_entry_max_length = 0
-    for idx, fields in enumerate(scores):
-        if len(str(fields[0])) > player_name_max_length:
-            player_name_max_length = len(str(fields[0]))
 
 
 def print_center(stdscr, text):
@@ -62,13 +54,10 @@ def print_center(stdscr, text):
 def main(stdscr):
     curses.curs_set(0)
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    # specify the current selected row
     current_row = 0
-    # print the menu
     print_menu(stdscr, current_row)
     while 1:
         key = stdscr.getch()
-
         if key == curses.KEY_UP and current_row > 0:
             current_row -= 1
         elif key == curses.KEY_DOWN and current_row < len(menu) - 1:
@@ -87,3 +76,7 @@ def main(stdscr):
                 break
 
         print_menu(stdscr, current_row)
+
+
+if __name__ == '__main__':
+    pass
