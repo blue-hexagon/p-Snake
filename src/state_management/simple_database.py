@@ -7,12 +7,11 @@ from typing import List
 class SimpleDB:
     _ROOT_DIR = os.path.abspath("data/")
     highscores = []
-    playername = "New Player"
+    playername = "Ivy"
     filename = "highscores"
-    filename_extension = ".db"
 
     def __init__(self) -> None:
-        self.is_initialized = path.exists(self.get_file_path(with_file_extension=True) + ".dir")
+        self.is_initialized = path.exists(self.get_file_path() + ".dir")
         if self.is_initialized:
             self.load_scores()
         else:
@@ -20,39 +19,33 @@ class SimpleDB:
 
     @staticmethod
     def get_shelve() -> shelve:
-        return shelve.open(SimpleDB.get_file_path(with_file_extension=True), writeback=True)
+        return shelve.open(SimpleDB.get_file_path(), writeback=True)
 
     @classmethod
-    def get_filename(cls, with_file_extension=False) -> str:
-        if with_file_extension:
-            return cls.filename + cls.filename_extension
-        else:
-            return cls.filename
+    def get_filename(cls) -> str:
+        return cls.filename
 
     @classmethod
-    def get_file_path(cls, with_file_extension=False) -> str:
-        if with_file_extension:
-            return os.path.join(cls._ROOT_DIR, cls.filename + cls.filename_extension)
-        else:
-            return os.path.join(cls._ROOT_DIR, cls.filename)
+    def get_file_path(cls) -> str:
+        return os.path.join(cls._ROOT_DIR, cls.filename)
 
     @classmethod
     def init_shelve(cls) -> None:
         initial_highscore_table = [
-            ["Blaze", 1000],
-            ["Fast Eddy", 900],
-            ["Starcat", 800],
-            ["Hammerhead", 700],
-            ["Mad Hatter", 600],
-            ["Primus", 500],
-            ["Tempest", 400],
-            ["Blackbird", 300],
-            ["DragonHawk", 200],
-            ["Wonderboy", 100],
+            ["Blaze", 8192],
+            ["Fast Eddy", 4096],
+            ["Starcat", 2048],
+            ["Hammerhead", 1024],
+            ["Mad Hatter", 512],
+            ["Primus", 256],
+            ["Tempest", 128],
+            ["Blackbird", 64],
+            ["DragonHawk", 32],
+            ["Wonderboy", 16],
         ]
         with cls.get_shelve() as simple_db:
             for i in range(0, len(initial_highscore_table)):
-                simple_db[cls.get_filename(with_file_extension=False) + f"{'-' + str(i)}"] = initial_highscore_table[i]
+                simple_db["score-" + str(i)] = initial_highscore_table[i]
             simple_db["playername"] = cls.playername
         cls.load_scores()
 
@@ -61,7 +54,7 @@ class SimpleDB:
         with cls.get_shelve() as simple_db:
             cls.highscores.clear()
             for i in range(0, 10):
-                cls.highscores.append(simple_db[cls.get_filename(with_file_extension=False) + f"{'-' + str(i)}"])
+                cls.highscores.append(simple_db["score-" + str(i)])
             cls.playername = simple_db["playername"]
 
     @classmethod
@@ -70,13 +63,13 @@ class SimpleDB:
             simple_db["playername"] = cls.playername
 
     @classmethod
-    def update_score(cls, gamescore) -> None:
+    def update_score(cls, gamescore: int) -> None:
         # TODO: This replaces the current entry, it needs to push the entries down one level each for entries with a lower score
         for idx in enumerate(cls.highscores):
             if gamescore >= cls.highscores[idx[0]][1]:
-                with shelve.open(cls.get_filename(), writeback=True) as d:
-                    d[cls.get_filename(with_file_extension=True) + str(idx[0])][0] = cls.playername
-                    d[cls.get_filename(with_file_extension=True) + str(idx[0])][1] = gamescore
+                with cls.get_shelve() as simple_db:
+                    simple_db["score-" + str(idx[0])][0] = cls.playername
+                    simple_db["score-" + str(idx[0])][1] = gamescore
                 cls.highscores[idx[0]][1] = gamescore
                 cls.highscores[idx[0]][0] = cls.playername
                 cls.load_scores()

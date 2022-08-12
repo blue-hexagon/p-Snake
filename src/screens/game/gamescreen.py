@@ -1,6 +1,7 @@
 import curses
 import random
 from curses import textpad
+from typing import List
 
 from src.screens.abstract_screen import StatefulScreen
 from src.state_management.simple_database import SimpleDB
@@ -9,7 +10,7 @@ GAMESPEED = 150
 
 
 class GameScreen(StatefulScreen):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     @staticmethod
@@ -36,7 +37,9 @@ class GameScreen(StatefulScreen):
         textpad.rectangle(stdscr, game_canvas[0][0], game_canvas[0][1], game_canvas[1][0], game_canvas[1][1])
         return game_canvas, h, w
 
-    def draw_screen(self, stdscr):
+    def draw_screen(self, stdscr) -> None:
+        stdscr.clear()
+        stdscr.refresh()
         game_canvas, h, w = self.init_screen(stdscr)
         current_direction, snake = self.init_snake(stdscr, h, w)
         prev_direction = current_direction
@@ -45,12 +48,11 @@ class GameScreen(StatefulScreen):
         food = self.create_food(snake, stdscr, game_canvas, obstacles)
         score = 0
         iter_counter = 0
-        self.print_score(stdscr, w, score)
 
         while True:
             iter_counter += 1
-            self.draw_informational_text_strings(iter_counter, snake, stdscr)
-
+            self.draw_informal_text(iter_counter, snake, stdscr)
+            self.print_score(stdscr, w, score)
             head = snake[0]
             key = stdscr.getch()
             if key in [curses.KEY_RIGHT, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_UP]:
@@ -117,10 +119,10 @@ class GameScreen(StatefulScreen):
                 stdscr.addstr(snake[-1][0], snake[-1][1], " ")
                 snake.pop()
             if (
-                    snake[0][0] in [game_canvas[0][0], game_canvas[1][0]]
-                    or snake[0][1] in [game_canvas[0][1], game_canvas[1][1]]
-                    or snake[0] in snake[1:]
-                    or snake[0] in obstacles
+                snake[0][0] in [game_canvas[0][0], game_canvas[1][0]]
+                or snake[0][1] in [game_canvas[0][1], game_canvas[1][1]]
+                or snake[0] in snake[1:]
+                or snake[0] in obstacles
             ):
                 msg = "GAME OVER"
                 SimpleDB.update_score(score)
@@ -132,8 +134,8 @@ class GameScreen(StatefulScreen):
             stdscr.refresh()
 
     @staticmethod
-    def draw_informational_text_strings(iter_counter, snake, stdscr) -> None:
-        """ Draws a string that displays the snakes current position on the gamescreen """
+    def draw_informal_text(iter_counter, snake, stdscr) -> None:
+        """Draws a string that displays the snakes current position on the gamescreen"""
         stdscr.addstr(0, 0, f"Pos(x,y):{str(snake[0]).replace(']', ' ').replace('[', ' ')}")
 
         """ Draws a string that displays the current number of gameloops so far """
@@ -149,11 +151,15 @@ class GameScreen(StatefulScreen):
         )
 
     @staticmethod
-    def create_obstacles(stdscr, game_canvas, snake):
-        obstacles = list(list())
+    def create_obstacles(stdscr, game_canvas, snake) -> List[List[int]]:
+        obstacles: List[List[int]] = []
         while len(obstacles) <= 50:
-            obstacles.append([random.randint(game_canvas[0][0] + 3, game_canvas[1][0] - 3),
-                              random.randint(game_canvas[0][1] + 3, game_canvas[1][1] - 3), ])
+            obstacles.append(
+                [
+                    random.randint(game_canvas[0][0] + 3, game_canvas[1][0] - 3),
+                    random.randint(game_canvas[0][1] + 3, game_canvas[1][1] - 3),
+                ]
+            )
             if obstacles in snake:
                 obstacles.pop()
             if len(obstacles) > 1:
@@ -170,20 +176,14 @@ class GameScreen(StatefulScreen):
                     obstacles[-1][1] + 2,
                 ]:
                     obstacles.pop()
-        obstacles_objs = {
-            0: "#",
-            1: "%",
-            2: "M",
-            3: "&",
-        }
         stdscr.attron(curses.A_BOLD)
         for idx, coords in enumerate(obstacles):
             stdscr.attron(curses.color_pair(4))
-            stdscr.addstr(coords[0], coords[1], obstacles_objs.get(random.randint(0, 3)))
+            stdscr.addstr(coords[0], coords[1], "#")
         stdscr.attroff(curses.color_pair(4))
         return obstacles
 
-    def create_food(self, snake, stdscr, game_canvas, obstacles):
+    def create_food(self, snake, stdscr, game_canvas, obstacles) -> List[int]:
         food = None
         while food is None:
             food = [
@@ -199,7 +199,7 @@ class GameScreen(StatefulScreen):
         stdscr.attroff(curses.color_pair(2))
         return food
 
-    def print_score(self, stdscr, w, score):
+    def print_score(self, stdscr, w, score) -> None:
         score_text = f"Score: {score}"
         stdscr.addstr(2, w // 2 - len(score_text) // 2, score_text)
         stdscr.refresh()

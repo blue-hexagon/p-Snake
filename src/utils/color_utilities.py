@@ -2,7 +2,8 @@ import curses
 
 
 class ColorPairInitializer:
-    """ Initializes color pairs used by the curses library """
+    """Initializes color pairs used by the curses library"""
+
     def __init__(self):
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)

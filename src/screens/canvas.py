@@ -1,3 +1,3 @@
-class Canvas():
-    def __init__(self, *args,**kwargs):
+class Canvas:
+    def __init__(self, *args, **kwargs):
         pass
