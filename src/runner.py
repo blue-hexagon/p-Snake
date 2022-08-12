@@ -1,17 +1,28 @@
 import curses
 
+from src.screens.canvas import Canvas
 from src.screens.game.gamescreen import GameScreen
 from src.screens.menu.menuscreen import MainScreen
 from src.state_management.simple_database import SimpleDB
+from src.utils.color_utilities import ColorPairInitializer
 
 
 class Runner:
     def __init__(self) -> None:
-        self.gs = SimpleDB()
-        self.main_screen = MainScreen()
-        self.game_screen = GameScreen()
+        self.stdscr = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        self.stdscr.keypad(True)
+        curses.start_color()
+        SimpleDB()
+        ColorPairInitializer()
+        canvas = Canvas()
+        self.screens = [
+            MainScreen(canvas),
+            GameScreen(canvas)
+        ]
 
     def run(self) -> None:
         while True:
-            curses.wrapper(self.main_screen.draw_screen)
-            curses.wrapper(self.game_screen.draw_screen)
+            for screen in self.screens:
+                screen.draw_screen(self.stdscr)
