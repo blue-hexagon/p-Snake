@@ -4,6 +4,7 @@ from curses import textpad
 from typing import List
 
 from src.screens.abstract_screen import StatefulScreen
+from src.screens.game.snake_movement import InGameKeyPress
 from src.state_management.simple_database import SimpleDB
 
 GAMESPEED = 150
@@ -67,42 +68,14 @@ class GameScreen(StatefulScreen):
                 stdscr.nodelay(1)
                 stdscr.timeout(GAMESPEED)
                 stdscr.addstr(h // 2, w // 2 - len(msg) // 2, " " * len(msg))
-            if current_direction == curses.KEY_RIGHT:
-                snake_symbol_head = "─"
-                new_head = [head[0], head[1] + 1]
-                if prev_direction == curses.KEY_UP:
-                    snake_symbol_neck = "╭"
-                elif prev_direction == curses.KEY_DOWN:
-                    snake_symbol_neck = "╰"
-                elif prev_direction == curses.KEY_LEFT or prev_direction == curses.KEY_RIGHT:
-                    snake_symbol_neck = "─"
-            elif current_direction == curses.KEY_LEFT:
-                snake_symbol_head = "─"
-                new_head = [head[0], head[1] - 1]
-                if prev_direction == curses.KEY_UP:
-                    snake_symbol_neck = "╮"
-                elif prev_direction == curses.KEY_DOWN:
-                    snake_symbol_neck = "╯"
-                elif prev_direction == curses.KEY_LEFT or prev_direction == curses.KEY_RIGHT:
-                    snake_symbol_neck = "─"
-            elif current_direction == curses.KEY_UP:
-                snake_symbol_head = "│"
-                new_head = [head[0] - 1, head[1]]
-                if prev_direction == curses.KEY_UP or prev_direction == curses.KEY_DOWN:
-                    snake_symbol_neck = "│"
-                elif prev_direction == curses.KEY_LEFT:
-                    snake_symbol_neck = "╰"
-                elif prev_direction == curses.KEY_RIGHT:
-                    snake_symbol_neck = "╯"
-            elif current_direction == curses.KEY_DOWN:
-                snake_symbol_head = "│"
-                new_head = [head[0] + 1, head[1]]
-                if prev_direction == curses.KEY_UP or prev_direction == curses.KEY_DOWN:
-                    snake_symbol_neck = "│"
-                elif prev_direction == curses.KEY_LEFT:
-                    snake_symbol_neck = "╭"
-                elif prev_direction == curses.KEY_RIGHT:
-                    snake_symbol_neck = "╮"
+
+            for direction in [curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_UP, curses.KEY_DOWN]:
+                if current_direction == direction:
+                    key = InGameKeyPress(head).get_keypress_object(direction)
+                    snake_symbol_head = key.snake_symbol_head
+                    new_head = key.new_head
+                    snake_symbol_neck = key.determine_neck_symbol(prev_direction)
+
             prev_direction = current_direction
             snake.insert(0, new_head)
             stdscr.addstr(new_head[0], new_head[1], snake_symbol_head)

@@ -1,7 +1,6 @@
 import os.path
 import shelve
 from os import path
-from typing import List
 
 
 class SimpleDB:
@@ -9,6 +8,18 @@ class SimpleDB:
     highscores = []
     playername = "Ivy"
     filename = "highscores"
+    initial_highscore_table = [
+        ["Blaze", 8192],
+        ["Fast Eddy", 4096],
+        ["Starcat", 2048],
+        ["Hammerhead", 1024],
+        ["Mad Hatter", 512],
+        ["Primus", 256],
+        ["Tempest", 128],
+        ["Blackbird", 64],
+        ["DragonHawk", 32],
+        ["Wonderboy", 16],
+    ]
 
     def __init__(self) -> None:
         self.is_initialized = path.exists(self.get_file_path() + ".dir")
@@ -31,21 +42,10 @@ class SimpleDB:
 
     @classmethod
     def init_shelve(cls) -> None:
-        initial_highscore_table = [
-            ["Blaze", 8192],
-            ["Fast Eddy", 4096],
-            ["Starcat", 2048],
-            ["Hammerhead", 1024],
-            ["Mad Hatter", 512],
-            ["Primus", 256],
-            ["Tempest", 128],
-            ["Blackbird", 64],
-            ["DragonHawk", 32],
-            ["Wonderboy", 16],
-        ]
+
         with cls.get_shelve() as simple_db:
-            for i in range(0, len(initial_highscore_table)):
-                simple_db["score-" + str(i)] = initial_highscore_table[i]
+            for i in range(0, len(cls.initial_highscore_table)):
+                simple_db["score-" + str(i)] = cls.initial_highscore_table[i]
             simple_db["playername"] = cls.playername
         cls.load_scores()
 
@@ -53,7 +53,7 @@ class SimpleDB:
     def load_scores(cls) -> None:
         with cls.get_shelve() as simple_db:
             cls.highscores.clear()
-            for i in range(0, 10):
+            for i in range(0, len(cls.initial_highscore_table)):
                 cls.highscores.append(simple_db["score-" + str(i)])
             cls.playername = simple_db["playername"]
 
@@ -68,8 +68,7 @@ class SimpleDB:
         for idx in enumerate(cls.highscores):
             if gamescore >= cls.highscores[idx[0]][1]:
                 with cls.get_shelve() as simple_db:
-                    simple_db["score-" + str(idx[0])][0] = cls.playername
-                    simple_db["score-" + str(idx[0])][1] = gamescore
+                    simple_db["score-" + str(idx[0])] = [cls.playername, gamescore]
                 cls.highscores[idx[0]][1] = gamescore
                 cls.highscores[idx[0]][0] = cls.playername
                 cls.load_scores()
