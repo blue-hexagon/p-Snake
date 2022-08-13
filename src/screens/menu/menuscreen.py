@@ -7,6 +7,7 @@ from src.screens.game.gamescreen import GameScreen
 from src.screens.menu.nested.exits_screen import ExitScreen
 from src.screens.menu.nested.scoreboard_screen import ScoreboardScreen
 from src.screens.menu.nested.set_playername_screen import SetPlayernameScreen
+from src.state_management.game_config import GameConfig
 from src.state_management.simple_database import SimpleDB
 from src.utils.key_defs import KeyDefinition
 
@@ -27,12 +28,13 @@ class MainScreen(StatefulScreen):
         super().__init__(*args, **kwargs)
         self.canvas = Canvas()
 
-    def draw_screen(self, stdscr) -> None:
+    def draw_screen(self) -> None:
+        stdscr = GameConfig.get_stdscr()
         curses.curs_set(0)
         curses.color_pair(1)
         # curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         current_row = 0
-        self.print_menu(current_row, stdscr)
+        self.print_menu(current_row)
         while True:
             """Navigate between the rows and act on the current item when pressing enter"""
             key = stdscr.getch()
@@ -46,17 +48,18 @@ class MainScreen(StatefulScreen):
                 current_row = 0
             elif key == KeyDefinition.NEWLINE:
                 if current_row == ScreensEnumeration.PLAY.screen_number:
-                    GameScreen().draw_screen(stdscr)
+                    GameScreen().draw_screen()
                 elif current_row == ScreensEnumeration.SET_PLAYER_NAME.screen_number:
-                    SetPlayernameScreen.draw_screen(stdscr)
+                    SetPlayernameScreen.draw_screen()
                 elif current_row == ScreensEnumeration.SCOREBOARD.screen_number:
-                    ScoreboardScreen.draw_screen(stdscr)
+                    ScoreboardScreen.draw_screen()
                     stdscr.getch()
                 elif current_row == ScreensEnumeration.EXIT.screen_number:
-                    ExitScreen.draw_screen(stdscr)
-            self.print_menu(current_row, stdscr)
+                    ExitScreen.draw_screen()
+            self.print_menu(current_row)
 
-    def print_menu(self, selected_row_idx, stdscr):
+    def print_menu(self, selected_row_idx):
+        stdscr = GameConfig.get_stdscr()
         stdscr.clear()
         h, w = stdscr.getmaxyx()
         stdscr.addstr(

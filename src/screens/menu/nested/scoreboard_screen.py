@@ -1,4 +1,5 @@
 from src.screens.abstract_screen import StatelessScreen
+from src.state_management.game_config import GameConfig
 from src.state_management.simple_database import SimpleDB
 
 
@@ -7,7 +8,8 @@ class ScoreboardScreen(StatelessScreen):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def draw_screen(stdscr) -> None:
+    def draw_screen() -> None:
+        stdscr = GameConfig.get_stdscr()
         stdscr.clear()
         h, w = stdscr.getmaxyx()
         player_name_max_length = 0

@@ -2,6 +2,7 @@ import curses
 import sys
 
 from src.screens.abstract_screen import StatelessScreen
+from src.state_management.game_config import GameConfig
 from src.utils.key_defs import KeyDefinition
 
 
@@ -10,8 +11,9 @@ class ExitScreen(StatelessScreen):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def draw_screen(stdscr):
-        StatelessScreen.draw_centered(stdscr, "Are you sure you want to exit?")
+    def draw_screen():
+        stdscr = GameConfig.get_stdscr()
+        StatelessScreen.draw_centered("Are you sure you want to exit?")
         key = stdscr.getch()
         if key != KeyDefinition.NEWLINE:
             return

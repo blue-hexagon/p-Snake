@@ -1,6 +1,7 @@
 import curses
 
 from src.screens.menu.menuscreen import MainScreen
+from src.state_management.game_config import GameConfig
 from src.state_management.simple_database import SimpleDB
 from src.utils.color_utilities import ColorPairInitializer
 
@@ -12,14 +13,15 @@ class Runner:
     """
 
     def __init__(self) -> None:
-        self.stdscr = curses.initscr()
-        self.stdscr.keypad(True)
+        stdscr = curses.initscr()
+        stdscr.keypad(True)
         curses.noecho()
         curses.cbreak()
         curses.start_color()
         ColorPairInitializer()
         SimpleDB()
+        GameConfig.set_stdscr(stdscr)
 
     def run(self) -> None:
         while True:
-            MainScreen().draw_screen(self.stdscr)
+            MainScreen().draw_screen()

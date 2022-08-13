@@ -1,6 +1,7 @@
 import curses
 
 from src.screens.abstract_screen import StatelessScreen
+from src.state_management.game_config import GameConfig
 from src.state_management.simple_database import SimpleDB
 
 
@@ -9,7 +10,8 @@ class SetPlayernameScreen(StatelessScreen):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def draw_screen(stdscr) -> None:
+    def draw_screen() -> None:
+        stdscr = GameConfig.get_stdscr()
         stdscr.clear()
         counter = 0
         curses.cbreak(True)

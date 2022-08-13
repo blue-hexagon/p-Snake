@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 
+from src.state_management.game_config import GameConfig
+
 
 class Screen(ABC):
     def __init__(self, *args, **kwargs) -> None:
         pass
 
     @staticmethod
-    def draw_centered(stdscr, text) -> None:
+    def draw_centered(text) -> None:
+        stdscr = GameConfig.get_stdscr()
         stdscr.clear()
         h, w = stdscr.getmaxyx()
         x = w // 2 - len(text) // 2
@@ -20,7 +23,7 @@ class StatefulScreen(Screen):
         super().__init__(*args, **kwargs)
 
     @abstractmethod
-    def draw_screen(self, stdscr) -> None:
+    def draw_screen(self) -> None:
         pass
 
 
@@ -30,5 +33,5 @@ class StatelessScreen(Screen):
 
     @staticmethod
     @abstractmethod
-    def draw_screen(stdscr) -> None:
+    def draw_screen() -> None:
         pass
