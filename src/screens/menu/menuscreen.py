@@ -2,7 +2,6 @@ import curses
 from enum import Enum
 
 from src.screens.abstract_screen import StatefulScreen
-from src.screens.canvas import Canvas
 from src.screens.game.gamescreen import GameScreen
 from src.screens.menu.nested.exits_screen import ExitScreen
 from src.screens.menu.nested.scoreboard_screen import ScoreboardScreen
@@ -12,7 +11,7 @@ from src.state_management.simple_database import SimpleDB
 from src.utils.key_defs import KeyDefinition
 
 
-class ScreensEnumeration(Enum):
+class MenuItemsEnumeration(Enum):
     PLAY = 0, "Play"
     SET_PLAYER_NAME = 1, "Change Playername"
     SCOREBOARD = 2, "Scoreboard"
@@ -26,13 +25,11 @@ class ScreensEnumeration(Enum):
 class MainScreen(StatefulScreen):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.canvas = Canvas()
 
     def draw_screen(self) -> None:
         stdscr = GameConfig.get_stdscr()
         curses.curs_set(0)
         curses.color_pair(1)
-        # curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         current_row = 0
         self.print_menu(current_row)
         while True:
@@ -41,35 +38,36 @@ class MainScreen(StatefulScreen):
             if key == curses.KEY_UP and current_row > 0:
                 current_row -= 1
             elif key == curses.KEY_UP and current_row == 0:
-                current_row = len(ScreensEnumeration) - 1
-            elif key == curses.KEY_DOWN and current_row < len(ScreensEnumeration) - 1:
+                current_row = len(MenuItemsEnumeration) - 1
+            elif key == curses.KEY_DOWN and current_row < len(MenuItemsEnumeration) - 1:
                 current_row += 1
-            elif key == curses.KEY_DOWN and current_row == len(ScreensEnumeration) - 1:
+            elif key == curses.KEY_DOWN and current_row == len(MenuItemsEnumeration) - 1:
                 current_row = 0
             elif key == KeyDefinition.NEWLINE:
-                if current_row == ScreensEnumeration.PLAY.screen_number:
+                if current_row == MenuItemsEnumeration.PLAY.screen_number:
                     GameScreen().draw_screen()
-                elif current_row == ScreensEnumeration.SET_PLAYER_NAME.screen_number:
+                elif current_row == MenuItemsEnumeration.SET_PLAYER_NAME.screen_number:
                     SetPlayernameScreen.draw_screen()
-                elif current_row == ScreensEnumeration.SCOREBOARD.screen_number:
+                elif current_row == MenuItemsEnumeration.SCOREBOARD.screen_number:
                     ScoreboardScreen.draw_screen()
-                    stdscr.getch()
-                elif current_row == ScreensEnumeration.EXIT.screen_number:
+                elif current_row == MenuItemsEnumeration.EXIT.screen_number:
                     ExitScreen.draw_screen()
             self.print_menu(current_row)
 
-    def print_menu(self, selected_row_idx):
+    @staticmethod
+    def print_menu(selected_row_idx):
         stdscr = GameConfig.get_stdscr()
-        stdscr.clear()
         h, w = stdscr.getmaxyx()
+        stdscr.clear()
+        ui_title = f"Welcome to Snake, {SimpleDB.playername}"
         stdscr.addstr(
-            h // 2 - len(ScreensEnumeration) // 2 - 2,
-            w // 2 - len(f"Welcome to Snake, {SimpleDB.playername}") // 2,
-            f"Welcome to Snake, {SimpleDB.playername}",
+            h // 2 - len(MenuItemsEnumeration) // 2 - 2,
+            w // 2 - len(ui_title) // 2,
+            ui_title,
         )
-        for idx, row in enumerate(ScreensEnumeration):
+        for idx, row in enumerate(MenuItemsEnumeration):
             x = w // 2 - len(row.display_name) // 2
-            y = h // 2 - len(ScreensEnumeration) // 2 + idx
+            y = h // 2 - len(MenuItemsEnumeration) // 2 + idx
             if idx == selected_row_idx:
                 stdscr.attron(curses.color_pair(1))
                 stdscr.addstr(y, x, row.display_name)

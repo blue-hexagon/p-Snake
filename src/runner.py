@@ -18,9 +18,13 @@ class Runner:
         curses.noecho()
         curses.cbreak()
         curses.start_color()
+
         ColorPairInitializer()
         SimpleDB()
+
         GameConfig.set_stdscr(stdscr)
+        GameConfig.set_number_of_obstacles(50)
+        GameConfig.set_game_speed(80)
 
     def run(self) -> None:
         while True:

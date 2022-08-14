@@ -1,35 +1,49 @@
 class GameConfig:
-    game_speed = 150
-    stdscr = None
-    canvas = None
-    h = None
-    w = None
+    _game_speed = None
+    _stdscr = None
+    _canvas = None
+    _h = None
+    _w = None
+    _no_of_obstacles = None
 
     @classmethod
     def get_gamespeed(cls):
-        return cls.game_speed
+        return cls._game_speed
 
     @classmethod
     def set_h_w(cls, h, w):
-        cls.h = h
-        cls.w = w
+        cls._h = h
+        cls._w = w
 
     @classmethod
     def get_h_w(cls):
-        return cls.h, cls.w
+        return cls._h, cls._w
 
     @classmethod
     def get_canvas_dimensions(cls):
-        return cls.canvas
+        return cls._canvas
 
     @classmethod
     def set_canvas_dimensions(cls, canvas):
-        cls.canvas = canvas
+        cls._canvas = canvas
 
     @classmethod
     def get_stdscr(cls):
-        return cls.stdscr
+        return cls._stdscr
 
     @classmethod
     def set_stdscr(cls, stdscr):
-        cls.stdscr = stdscr
+        cls._stdscr = stdscr
+
+    @classmethod
+    def set_number_of_obstacles(cls, no_of_obstacles):
+        cls._no_of_obstacles = no_of_obstacles
+
+    @classmethod
+    def get_no_of_obstacles(cls):
+        return cls._no_of_obstacles
+
+    @classmethod
+    def set_game_speed(cls, game_speed):
+        """Unit is milliseconds"""
+        cls._game_speed = game_speed

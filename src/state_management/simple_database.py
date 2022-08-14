@@ -4,7 +4,7 @@ from os import path
 
 
 class SimpleDB:
-    _ROOT_DIR = os.path.abspath("data/")
+    _dir = os.path.abspath("data/")
     highscores = []
     playername = "Ivy"
     filename = "highscores"
@@ -38,7 +38,7 @@ class SimpleDB:
 
     @classmethod
     def get_file_path(cls) -> str:
-        return os.path.join(cls._ROOT_DIR, cls.filename)
+        return os.path.join(cls._dir, cls.filename)
 
     @classmethod
     def init_shelve(cls) -> None:

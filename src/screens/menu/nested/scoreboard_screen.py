@@ -28,3 +28,4 @@ class ScoreboardScreen(StatelessScreen):
             )
         stdscr.addstr(h // 2 - len(SimpleDB.highscores) // 2 - 2, w // 2 - len("Scoreboard") // 2, "Scoreboard")
         stdscr.refresh()
+        stdscr.getch()

@@ -1,15 +1,16 @@
 import curses
 import random
+import sys
 from curses import textpad
 from typing import List
 
 from src.screens.abstract_screen import StatefulScreen
+from src.screens.game.obstacle_handler import ObstacleManager
 from src.screens.game.pause_screen import PauseScreen
 from src.screens.game.snake_keypress_controller import InGameKeyPress
 from src.state_management.game_config import GameConfig
 from src.state_management.simple_database import SimpleDB
-
-GAMESPEED = 150
+from src.utils.key_defs import KeyDefinition
 
 
 class GameScreen(StatefulScreen):
@@ -18,6 +19,7 @@ class GameScreen(StatefulScreen):
 
     @staticmethod
     def init_snake():
+        # TODO: Replac with Snake()
         stdscr = GameConfig.get_stdscr()
         h, w = GameConfig.get_h_w()
         snake = [
@@ -37,7 +39,7 @@ class GameScreen(StatefulScreen):
         stdscr = GameConfig.get_stdscr()
         curses.curs_set(0)
         stdscr.nodelay(1)
-        stdscr.timeout(GAMESPEED)
+        stdscr.timeout(GameConfig.get_gamespeed())
         h, w = stdscr.getmaxyx()
         game_canvas = [[3, 3], [h - 3, w - 3]]
         GameConfig.set_h_w(h, w)
@@ -54,8 +56,8 @@ class GameScreen(StatefulScreen):
         current_direction, snake = self.init_snake()
         prev_direction = current_direction
         snake_symbol_neck = "─"
-        obstacles = self.create_obstacles(game_canvas, snake)
-        food = self.create_food(snake, game_canvas, obstacles)
+        obstacles = ObstacleManager().create_obstacles(snake)
+        food = self.create_food(snake, obstacles)
         score = 0
         iter_counter = 0
 
@@ -68,8 +70,8 @@ class GameScreen(StatefulScreen):
             if key in [curses.KEY_RIGHT, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_UP]:
                 prev_direction = current_direction
                 current_direction = key
-            elif key in [27, 112]:  # 'ESC' or 'p'
-                PauseScreen.draw_screen(stdscr)
+            elif key in [KeyDefinition.ESCAPE, KeyDefinition.LOWER_P]:
+                PauseScreen.draw_screen()
             for direction in [curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_UP, curses.KEY_DOWN]:
                 if current_direction == direction:
                     key = InGameKeyPress(head).get_keypress_object(direction)
@@ -83,7 +85,7 @@ class GameScreen(StatefulScreen):
             stdscr.addstr(snake[1][0], snake[1][1], snake_symbol_neck)
 
             if snake[0] == food:
-                food = self.create_food(snake, game_canvas, obstacles)
+                food = self.create_food(snake, obstacles)
                 score += 1 * len(snake)
                 self.print_score(w, score)
             elif iter_counter % 100 == 0:
@@ -93,10 +95,10 @@ class GameScreen(StatefulScreen):
                 stdscr.addstr(snake[-1][0], snake[-1][1], " ")
                 snake.pop()
             if (
-                    snake[0][0] in [game_canvas[0][0], game_canvas[1][0]]
-                    or snake[0][1] in [game_canvas[0][1], game_canvas[1][1]]
-                    or snake[0] in snake[1:]
-                    or snake[0] in obstacles
+                snake[0][0] in [game_canvas[0][0], game_canvas[1][0]]
+                or snake[0][1] in [game_canvas[0][1], game_canvas[1][1]]
+                or snake[0] in snake[1:]
+                or snake[0] in obstacles
             ):
                 msg = "GAME OVER"
                 SimpleDB.update_score(score)
@@ -117,50 +119,19 @@ class GameScreen(StatefulScreen):
         stdscr.addstr(stdscr.getmaxyx()[0] - 1, 0, f"Steps: {iter_counter}")
 
         """ Draws a string that tells the player how to pause the game """
-        stdscr.addstr(0, stdscr.getmaxyx()[1] - 20, "Press ESC or 'p' to pause")
+
+        stdscr.addstr(0, stdscr.getmaxyx()[1] - len("Press ESC or 'p' to pause"), "Press ESC or 'p' to pause")
 
         """ Draws a string that shows the current players name """
-        player_name_ui_string = f"Playername: {SimpleDB.playername}"
         stdscr.addstr(
-            stdscr.getmaxyx()[0] - 1, stdscr.getmaxyx()[1] - len(player_name_ui_string) - 1, player_name_ui_string
+            stdscr.getmaxyx()[0] - 1,
+            stdscr.getmaxyx()[1] - len(f"Playername: {SimpleDB.playername}") - 1,
+            f"Playername: {SimpleDB.playername}",
         )
 
-    @staticmethod
-    def create_obstacles(game_canvas, snake) -> List[List[int]]:
+    def create_food(self, snake, obstacles) -> List[int]:
         stdscr = GameConfig.get_stdscr()
-        obstacles: List[List[int]] = []
-        while len(obstacles) <= 50:
-            obstacles.append(
-                [
-                    random.randint(game_canvas[0][0] + 3, game_canvas[1][0] - 3),
-                    random.randint(game_canvas[0][1] + 3, game_canvas[1][1] - 3),
-                ]
-            )
-            if obstacles in snake:
-                obstacles.pop()
-            if len(obstacles) > 1:
-                if obstacles[-1] in obstacles[-2]:
-                    obstacles.pop()
-                elif obstacles[-2] in [
-                    obstacles[-1][0] - 1,
-                    obstacles[-1][0] + 1,
-                    obstacles[-1][1] - 1,
-                    obstacles[-1][1] + 1,
-                    obstacles[-1][0] - 2,
-                    obstacles[-1][0] + 2,
-                    obstacles[-1][1] - 2,
-                    obstacles[-1][1] + 2,
-                ]:
-                    obstacles.pop()
-        stdscr.attron(curses.A_BOLD)
-        for idx, coords in enumerate(obstacles):
-            stdscr.attron(curses.color_pair(4))
-            stdscr.addstr(coords[0], coords[1], "#")
-        stdscr.attroff(curses.color_pair(4))
-        return obstacles
-
-    def create_food(self, snake, game_canvas, obstacles) -> List[int]:
-        stdscr = GameConfig.get_stdscr()
+        game_canvas = GameConfig.get_canvas_dimensions()
         food = None
         while food is None:
             food = [
