@@ -15,7 +15,7 @@ class ObstacleManager:
     def __init__(self):
         self.obstacles: List[List[int]] = []
 
-    def create_obstacles(self, snake) -> List[List[int]]:
+    def create_obstacles(self, snake_body) -> List[List[int]]:
         stdscr = GameConfig.get_stdscr()
         game_canvas = GameConfig.get_canvas_dimensions()
         obstacles = self.obstacles
@@ -24,7 +24,7 @@ class ObstacleManager:
                 random.randint(game_canvas[0][0] + 3, game_canvas[1][0] - 3),
                 random.randint(game_canvas[0][1] + 3, game_canvas[1][1] - 3),
             ]
-            if not self.collision_check(obstacles, snake):
+            if not self.collision_check(obstacles, snake_body):
                 obstacles.append(obstacle)
         self.draw_obstacles(obstacles, stdscr)
         return obstacles

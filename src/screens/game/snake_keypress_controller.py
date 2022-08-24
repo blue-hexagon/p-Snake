@@ -1,5 +1,4 @@
 import curses
-from abc import ABC
 
 
 class InGameKeyPress:

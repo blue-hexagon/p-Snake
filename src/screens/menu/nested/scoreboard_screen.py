@@ -14,18 +14,37 @@ class ScoreboardScreen(StatelessScreen):
         h, w = stdscr.getmaxyx()
         player_name_max_length = 0
         score_column_max_length = 0
-        scoreboard_fs = "  -  "
-        for idx, fields in enumerate(SimpleDB.highscores):
-            if len(str(fields[0])) > player_name_max_length:
-                player_name_max_length = len(str(fields[0]))
-            if len(str(fields[1])) > score_column_max_length:
-                score_column_max_length = len(str(fields[1]))
-        for idx, row in enumerate(SimpleDB.highscores):
-            x = w // 2 - player_name_max_length // 2 - score_column_max_length // 2 - len(scoreboard_fs) // 2
-            y = h // 2 - len(SimpleDB.highscores) // 2 + idx
+        field_seperator = "  -  "
+        SimpleDB.get_highscore_table()
+        """ Create a dynamically sized table with proper padding
+            If one of the names become SuperStarcatStarBlazer, or
+            a score increases to 131072, the table dynamically
+            resizes and aligns all entries.
+            Example:
+            Blaze       -  8192
+            Fast Eddy   -  4096
+            Starcat     -  2048
+            Hammerhead  -  1024
+            Mad Hatter  -   512
+            Primus      -   256
+            Tempest     -   128
+            Blackbird   -    64
+            DragonHawk  -    32 """
+        for idx, fields in enumerate(SimpleDB.get_highscore_table()):
+            if len(str(fields.player.name)) > player_name_max_length:
+                player_name_max_length = len(str(fields.player.name))
+            if len(str(fields.score)) > score_column_max_length:
+                score_column_max_length = len(str(fields.score))
+        for idx, entry in enumerate(SimpleDB.get_highscore_table()):
+            x = w // 2 - player_name_max_length // 2 - score_column_max_length // 2 - len(field_seperator) // 2
+            y = h // 2 - len(SimpleDB.get_highscore_table()) // 2 + idx
             stdscr.addstr(
-                y, x, row[0].ljust(player_name_max_length) + scoreboard_fs + str(row[1]).rjust(score_column_max_length)
+                y,
+                x,
+                f"{entry.leaderboard_rank.ranking}. {entry.player.name.ljust(player_name_max_length)} {field_seperator} {str(entry.score).rjust(score_column_max_length)}",
             )
-        stdscr.addstr(h // 2 - len(SimpleDB.highscores) // 2 - 2, w // 2 - len("Scoreboard") // 2, "Scoreboard")
+        stdscr.addstr(
+            h // 2 - len(SimpleDB.get_highscore_table()) // 2 - 2, w // 2 - (len("Scoreboard") - 7) // 2, "Scoreboard"
+        )
         stdscr.refresh()
         stdscr.getch()

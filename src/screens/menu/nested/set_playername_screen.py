@@ -2,7 +2,8 @@ import curses
 
 from src.screens.abstract_screen import StatelessScreen
 from src.state_management.game_config import GameConfig
-from src.state_management.simple_database import SimpleDB
+from src.state_management.models import Player
+from src.state_management.simple_database import SimpleDB as db
 from src.utils.key_defs import KeyDefinition
 
 
@@ -24,8 +25,7 @@ class SetPlayernameScreen(StatelessScreen):
             key = stdscr.getch()
             if key in [KeyDefinition.NEWLINE]:
                 curses.cbreak(True)
-                SimpleDB.playername = playername
-                SimpleDB.update_playername()
+                db.update_playername(Player(playername))
                 break
             stdscr.addstr(h // 2, w // 2 + counter, chr(key))
             playername += chr(key)
